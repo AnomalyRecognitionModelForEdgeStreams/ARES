@@ -1,0 +1,38 @@
+{
+  "dataset": "IDS2018",
+  "dataset_extension": ".csv",
+  "model_name": "GAE",
+  "GPU": 3,
+  "seed": 42,
+
+  "save_files": 0,
+
+  "perc_train": 0.6,
+  "perc_val": 0.2,
+
+  "training": 0,
+  "validation": 0,
+  "update_hst": 1,
+
+  "phi": "mean",
+  "random_start": 1,
+
+  "in_channels": 32,
+  "hidden_channels": 16,
+  "out_channels": 4,
+  "num_layers": 4,
+  "epochs": 10000,
+  "learning_rate": 0.001,
+  "patience": 1000,
+
+  "plot_title": "plot_loss/plot_loss_GAE_IDS2018",
+  "model_save_path": "checkpoints/model_GAE_IDS2018",
+
+  "n_trees": 8,
+  "height": 3,
+  "window_size": 512,
+  "thresholds": "0.6737467646598816, 0.6789876222610474, 0.6472656428813934, 0.7415852844715118, 0.818896472454071, 0.687255859375, 0.8144693970680237, 0.720996081829071, 0.7498534917831421",
+  "weights": "1.0,0.0,0.0",
+  "window_already_seen": 64
+
+}

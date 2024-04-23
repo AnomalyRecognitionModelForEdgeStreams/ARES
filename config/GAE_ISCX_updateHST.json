@@ -1,0 +1,38 @@
+{
+  "dataset": "ISCX",
+  "dataset_extension": ".csv",
+  "model_name": "GAE",
+  "GPU": 3,
+  "seed": 42,
+
+  "save_files": 0,
+
+  "perc_train": 0.6,
+  "perc_val": 0.2,
+
+  "training": 0,
+  "validation": 0,
+  "update_hst": 1,
+
+  "phi": "minus",
+  "random_start": 0,
+
+  "in_channels": 32,
+  "hidden_channels": 16,
+  "out_channels": 4,
+  "num_layers": 4,
+  "epochs": 10000,
+  "learning_rate": 0.001,
+  "patience": 1000,
+
+  "plot_title": "plot_loss/plot_loss_GAE_ISCX",
+  "model_save_path": "checkpoints/model_GAE_ISCX",
+
+  "n_trees": 8,
+  "height": 12,
+  "window_size": 8192,
+  "thresholds": "0.9986387491226196, 0.9994718432426453, 0.9993235468864441, 0.9994227588176727, 0.9994910955429077, 0.999545156955719, 0.9995635747909546, 0.999591052532196, 0.9992401897907257",
+  "weights": "1.0,0.0,0.0",
+  "window_already_seen": 64
+
+}

@@ -1,0 +1,37 @@
+{
+  "dataset": "CTU-13-Scenario-13",
+  "dataset_extension": ".csv",
+  "model_name": "GAE",
+  "GPU": 3,
+  "seed": 42,
+
+  "save_files": 0,
+
+  "perc_train": 0.6,
+  "perc_val": 0.2,
+
+  "training": 0,
+  "validation": 0,
+  "update_hst": 0,
+
+  "phi": "minus",
+  "random_start": 1,
+
+  "in_channels": 64,
+  "hidden_channels": 16,
+  "out_channels": 8,
+  "num_layers": 6,
+  "epochs": 10000,
+  "learning_rate": 0.001,
+  "patience": 1000,
+
+  "plot_title": "plot_loss/plot_loss_GAE_CTU-13-Scenario-13",
+  "model_save_path": "checkpoints/model_GAE_CTU-13-Scenario-13",
+
+  "n_trees": 64,
+  "height": 3,
+  "window_size": 8192,
+  "thresholds": "0.6983263790607452, 0.7145957946777344, 0.7146929502487183, 0.7416727542877197, 0.727776825428009, 0.7218078672885895, 0.723299652338028, 0.6979537904262543, 0.7244649231433868",
+  "weights": "1.0,0.0,0.0",
+  "window_already_seen": 64
+}

@@ -1,0 +1,37 @@
+{
+  "dataset": "DARPA",
+  "dataset_extension": ".csv",
+  "model_name": "GAE",
+  "GPU": 3,
+  "seed": 42,
+
+  "save_files": 0,
+
+  "perc_train": 0.6,
+  "perc_val": 0.2,
+
+  "training": 0,
+  "validation": 0,
+  "update_hst": 0,
+
+  "phi": "mean",
+  "random_start": 0,
+
+  "in_channels": 32,
+  "hidden_channels": 16,
+  "out_channels": 8,
+  "num_layers": 5,
+  "epochs": 10000,
+  "learning_rate": 0.001,
+  "patience": 1000,
+
+  "plot_title": "plot_loss/plot_loss_GAE_DARPA",
+  "model_save_path": "checkpoints/model_GAE_DARPA",
+  
+  "n_trees": 8,
+  "height": 3,
+  "window_size": 8,
+  "thresholds": "0.32500000298023224, 0.1250000037252903, 0.20000000298023224, 0.4791666567325592, 0.2083333358168602, 0.28333334624767303, 0.3166666626930237, 0.4833333194255829, 0.2750000059604645",
+  "weights": "1.0,0.0,0.0",
+  "window_already_seen": 64
+}
