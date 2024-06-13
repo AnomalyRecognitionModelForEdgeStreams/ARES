@@ -80,9 +80,9 @@ else:
     if params.validation:
 
         weights_scores = [(1.0, 0.0, 0.0), (0.33, 0.33, 0.33)]
-        window_already_seen = [64, 32, 16, 8, 4]
+        window_already_seen = [64, 32, 16, 8, 4, 2]
         n_trees_list = [8, 16, 32, 64]
-        height_list = [3, 6, 9, 12]
+        height_list = [3, 6, 9, 12, 15]
         window_size_list = [8, 64, 512, 1024, 2048, 4096, 8192]
         seeds = [
             42,
