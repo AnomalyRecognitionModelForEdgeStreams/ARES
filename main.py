@@ -1,13 +1,8 @@
-import torch
+import time
 import os
-
-from pipeline import pipeline_validation, pipeline_test
-from utils import preprocess_dataset, save_unsw, save_ctu, load_data
-from trainer import Trainer
 import argparse
 import json
 import sys
-import numpy as np
 
 with open(sys.argv[1]) as fp:
     params = json.load(fp)
@@ -18,23 +13,36 @@ t_args = argparse.Namespace()
 t_args.__dict__.update(params)
 params = parser.parse_args(args=None, namespace=t_args)
 
+os.environ['CUDA_VISIBLE_DEVICES']= "{}".format(str(params.GPU))
+
+import torch
+
+from pipeline import pipeline_validation, pipeline_test
+from utils import preprocess_dataset, save_unsw, save_ctu, load_data
+
+from trainer import Trainer
+import numpy as np
+import torch_geometric
+
+
+
 if params.save_files:
     if params.dataset == "UNSW-NB15":
-        train_graph, val_graph, val_and_train_graph, val, test, loaders = save_unsw()
+        train_graph, val_graph, val, test, loaders = save_unsw()
     if params.dataset.startswith("CTU-13-Scenario"):
-        train_graph, val_graph, val_and_train_graph, val, test, loaders = save_ctu(
+        train_graph, val_graph, val, test, loaders = save_ctu(
             params.dataset)
 
 if params.dataset == "DARPA":
-    train_graph, val_graph, val_and_train_graph, train, val, test, val_and_test, df = preprocess_dataset(
+    train_graph, val_graph, train, val, test, val_and_test, df = preprocess_dataset(
         params)
 else:
-    train_graph, val_graph, val_and_train_graph, train, val, test, val_and_test, df = load_data(
+    train_graph, val_graph, train, val, test, val_and_test, df = load_data(
         params)
 
 
 GPU = params.GPU
-device_string = 'cuda:{}'.format(GPU) if torch.cuda.is_available() and GPU != "cpu" else 'cpu'
+device_string = 'cuda:{}'.format("0") if torch.cuda.is_available() and GPU != "cpu" else 'cpu'
 device = torch.device(device_string)
 
 params.device = device
@@ -71,10 +79,10 @@ else:
 
     if params.validation:
 
-        weights_scores = [(1.0, 0.0, 0.0)]#, (0.33, 0.33, 0.33)]
-        window_already_seen = [64, 32, 16, 8, 4, 2]
-        n_trees_list = [64]#[8, 16, 32, 64]
-        height_list = [3, 6, 9, 12, 15]
+        weights_scores = [(1.0, 0.0, 0.0), (0.33, 0.33, 0.33)]
+        window_already_seen = [64, 32, 16, 8, 4]
+        n_trees_list = [8, 16, 32, 64]
+        height_list = [3, 6, 9, 12]
         window_size_list = [8, 64, 512, 1024, 2048, 4096, 8192]
         seeds = [
             42,

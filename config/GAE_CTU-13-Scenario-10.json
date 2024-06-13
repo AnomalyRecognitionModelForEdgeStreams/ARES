@@ -15,23 +15,23 @@
   "update_hst": 0,
 
   "phi": "minus",
-  "random_start": 0,
-
+  "random_start": 1,
+  
   "in_channels": 32,
   "hidden_channels": 16,
-  "out_channels": 8,
+  "out_channels": 4,
   "num_layers": 6,
-  "epochs": 10000,
+  "epochs": 5000,
   "learning_rate": 0.001,
-  "patience": 1000,
+  "patience": 500,
 
   "plot_title": "plot_loss/plot_loss_GAE_CTU-13-Scenario-10",
   "model_save_path": "checkpoints/model_GAE_CTU-13-Scenario-10",
 
-  "n_trees": 32,
-  "height": 6,
-  "window_size": 512,
-  "thresholds": "0.8191215991973877, 0.8366862535476685, 0.8471496999263763, 0.829282283782959, 0.7875659465789795, 0.8085149526596069, 0.8608177304267883, 0.8128344714641571, 0.8153893053531647",
+  "n_trees": 16,
+  "height": 9,
+  "window_size": 8192,
+  "thresholds": "0.9897371232509613, 0.9832764267921448, 0.9760144352912903, 0.9604776203632355, 0.9806731045246124, 0.9781810343265533, 0.9578796625137329, 0.9663318991661072, 0.9590668976306915",
   "weights": "1.0,0.0,0.0",
   "window_already_seen": 64
 }

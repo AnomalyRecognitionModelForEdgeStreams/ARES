@@ -1,9 +1,10 @@
+import time
 import pandas as pd
 import numpy as np
 import torch
 import os
-from torch_geometric.data import Data
-
+import os
+import torch_geometric
 
 def load_dataset(dataset):
     processed_path = "data/processed/{}".format(dataset)
@@ -44,7 +45,9 @@ def preprocess_dataset(params):
         train_chunk = int(df.shape[0] * perc_train)
         train_chunk_t = df.iloc[train_chunk].t
 
-        val_chunk = int(df.shape[0] * perc_val) + train_chunk
+        train_chunk_tmp = int(df.shape[0] * 0.6)
+
+        val_chunk = int(df.shape[0] * perc_val) + train_chunk_tmp
         val_chunk_t = df.iloc[val_chunk].t
 
         train = df[df.t <= train_chunk_t]
@@ -70,27 +73,19 @@ def preprocess_dataset(params):
         w_train['i'] = np.arange(w_train.shape[0])
         w_train_dict = w_train.set_index(["s", "d"]).to_dict()['i']
 
-        train_graph = Data(x=x, edge_index=torch.LongTensor(
-            w_train[['s', 'd']].to_numpy()).t().contiguous(), edge_dict=w_train_dict)
+        train_graph = torch_geometric.data.Data(x=x, edge_index=torch.LongTensor(
+            w_train[['s', 'd']].to_numpy()).t().contiguous(), edge_dict=w_train_dict).cpu()
 
         w_val = val[['s', 'd']].value_counts()
         w_val = w_val.reset_index()
         w_val['i'] = np.arange(w_val.shape[0])
         w_val_dict = w_val.set_index(["s", "d"]).to_dict()['i']
 
-        val_graph = Data(x=x, edge_index=torch.LongTensor(
-            w_val[['s', 'd']].to_numpy()).t().contiguous(), edge_dict=w_val_dict)
+        val_graph = torch_geometric.data.Data(x=x, edge_index=torch.LongTensor(
+            w_val[['s', 'd']].to_numpy()).t().contiguous(), edge_dict=w_val_dict).cpu()
 
-        w_val_and_train = val_and_train[['s', 'd']].value_counts()
-        w_val_and_train = w_val_and_train.reset_index()
-        w_val_and_train['i'] = np.arange(w_val_and_train.shape[0])
-        w_val_and_train_dict = w_val_and_train.set_index(["s", "d"]).to_dict()[
-            'i']
 
-        val_and_train_graph = Data(x=x, edge_index=torch.LongTensor(w_val_and_train[[
-                                   's', 'd']].to_numpy()).t().contiguous(), edge_dict=w_val_and_train_dict)
-
-        return train_graph, val_graph, val_and_train_graph, train, val, test, val_and_test, df
+        return train_graph, val_graph, train, val, test, val_and_test, df
 
 
 def save_ctu(dataset):
@@ -174,7 +169,9 @@ def load_data(params):
     train_chunk = int(df.shape[0] * perc_train)
     train_chunk_t = df.iloc[train_chunk].t
 
-    val_chunk = int(df.shape[0] * perc_val) + train_chunk
+    train_chunk_tmp = int(df.shape[0] * 0.6)
+
+    val_chunk = int(df.shape[0] * perc_val) + train_chunk_tmp
     val_chunk_t = df.iloc[val_chunk].t
 
     train = df[df.t <= train_chunk_t]
@@ -199,26 +196,18 @@ def load_data(params):
     w_train['i'] = np.arange(w_train.shape[0])
     w_train_dict = w_train.set_index(["s", "d"]).to_dict()['i']
 
-    train_graph = Data(x=x, edge_index=torch.LongTensor(
-        w_train[['s', 'd']].to_numpy()).t().contiguous(), edge_dict=w_train_dict)
+    train_graph = torch_geometric.data.Data(x=x, edge_index=torch.LongTensor(
+        w_train[['s', 'd']].to_numpy()).t().contiguous(), edge_dict=w_train_dict).cpu()
 
     w_val = val[['s', 'd']].value_counts()
     w_val = w_val.reset_index()
     w_val['i'] = np.arange(w_val.shape[0])
     w_val_dict = w_val.set_index(["s", "d"]).to_dict()['i']
 
-    val_graph = Data(x=x, edge_index=torch.LongTensor(
-        w_val[['s', 'd']].to_numpy()).t().contiguous(), edge_dict=w_val_dict)
+    val_graph = torch_geometric.data.Data(x=x, edge_index=torch.LongTensor(
+        w_val[['s', 'd']].to_numpy()).t().contiguous(), edge_dict=w_val_dict).cpu()
 
-    w_val_and_train = val_and_train[['s', 'd']].value_counts()
-    w_val_and_train = w_val_and_train.reset_index()
-    w_val_and_train['i'] = np.arange(w_val_and_train.shape[0])
-    w_val_and_train_dict = w_val_and_train.set_index(["s", "d"]).to_dict()['i']
-
-    val_and_train_graph = Data(x=x, edge_index=torch.LongTensor(w_val_and_train[[
-                               's', 'd']].to_numpy()).t().contiguous(), edge_dict=w_val_and_train_dict)
-
-    return train_graph, val_graph, val_and_train_graph, train, val, test, val_and_test, df
+    return train_graph, val_graph, train, val, test, val_and_test, df
 
 
 def save_unsw():

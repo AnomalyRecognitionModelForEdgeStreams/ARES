@@ -4,7 +4,7 @@ import random
 import numpy as np
 import torch.nn as nn
 import torch
-from torch_geometric.nn.models import GraphSAGE
+from torch_geometric.nn.models import GraphSAGE, GAT
 from torch_geometric.nn import GAE
 import matplotlib.pyplot as plt
 
@@ -32,8 +32,6 @@ class Trainer(nn.Module):
         os.environ['PYTHONHASHSEED'] = str(params.seed)
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
-
-        self.model = None
 
         self.model = GAE(
             GraphSAGE(

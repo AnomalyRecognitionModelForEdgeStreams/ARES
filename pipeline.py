@@ -11,6 +11,9 @@ from sklearn.metrics import roc_auc_score, balanced_accuracy_score, recall_score
 from river import anomaly, compose, preprocessing
 from vfhst import VeryFastHalfSpaceTrees
 import time
+import torch
+
+import pandas as pd
 
 
 def pipeline_test(
@@ -37,6 +40,9 @@ def pipeline_test(
     recall_tn_list = []
     recall_tp_list = []
     timings = []
+
+    scores_and_labels_df = []
+    roc_auc_over_time_df = []
 
     for i, seed in enumerate(seeds):
         params.seed = seed
@@ -147,7 +153,7 @@ def pipeline_test(
         elif params.dataset == "CTU-13-Scenario-13":
             start_test_index = 1540118
 
-        tp, tn, fp, fn, scores_and_labels, timing = run_stream(params, times, val_and_test, g_tmp, model,
+        tp, tn, fp, fn, scores_and_labels, timing, roc_auc_over_time = run_stream(params, times, val_and_test, g_tmp, model,
                                                                       weights, hst_edge_model, hst_node_model, device,
                                                                       window_already_seen, start_test_index=start_test_index,
                                                                       threshold=threshold)
@@ -155,6 +161,12 @@ def pipeline_test(
         scores_and_labels = np.array(scores_and_labels)
         roc_auc_results = roc_auc_score(scores_and_labels[:, 1], scores_and_labels[:, 0])
         roc_auc_results = np.around(roc_auc_results, 15)
+
+        for i in range(len(roc_auc_over_time)):
+            roc_auc_over_time_df.append((roc_auc_over_time[i], seed))
+
+        for i in range(len(scores_and_labels)):
+            scores_and_labels_df.append((scores_and_labels[i, 1], scores_and_labels[i, 0], seed))
 
         precision = np.around((tp) / (tp + fp), 15) if (tp + fp) > 0 else 0
         recall_tp = np.around((tp) / (tp + fn), 15) if (tp + fn) > 0 else 0
@@ -177,6 +189,7 @@ def pipeline_test(
             "ROC-AUC: {}".format(roc_auc_results), "Balanced Accuracy", balanced_accuracy, "F1", f1score)
         print("True Positive", tp, " True Negative", tn, " False Positive", fp, " False Negative", fn)
 
+
         if not os.path.exists(output_file):
             f = open(output_file, "w")
             f.write(
@@ -189,6 +202,9 @@ def pipeline_test(
                                                                   roc_auc_results, f1score, balanced_accuracy,
                                                                   recall_tp, precision))
         f.close()
+        
+
+
 
     print("Model", params.model_name, "n_trees", n_trees, "\theight", height, "\twindow_size", window_size,
             "\tthreshold", thresholds, "Weights scores", weights, "Window Already Seen", window_already_seen)
@@ -200,17 +216,6 @@ def pipeline_test(
     print("Precision: {} +- {}".format(np.mean(precision_list), np.std(precision_list)))
     print("Recall: {} +- {}".format(np.mean(recall_tp_list), np.std(recall_tp_list)))
     print("Timing Mean: {}".format(np.mean(timings)))
-
-    f = open(output_file, "a")
-    f.write("{}\t{}\t{}\t{}\t{}\t{}\t{} +- {}\t{} +- {}\t{} +- {}\n".format(
-        params.model_name, n_trees, height, window_size, threshold, weights,
-        np.mean(roc_auc_list),
-        np.std(roc_auc_list),
-        np.mean(balanced_accuracy_list),
-        np.std(balanced_accuracy_list),
-        np.mean(f1_list),
-         np.std(f1_list)))
-    f.close()
 
 
 def pipeline_validation(
@@ -231,15 +236,15 @@ def pipeline_validation(
 
     min_roc_value_early_stopping = 0
     if params.dataset == "DARPA":
-        min_roc_value_early_stopping = 0.97
+        min_roc_value_early_stopping = 0.9#0.96
     if params.dataset == "UNSW-NB15":
         min_roc_value_early_stopping = 0.84
     elif params.dataset == "ISCX":
-        min_roc_value_early_stopping = 0.95
+        min_roc_value_early_stopping = 0.97
     elif params.dataset == "IDS2018":
         min_roc_value_early_stopping = 0.97
     elif params.dataset == "CTU-13-Scenario-1":
-        min_roc_value_early_stopping = 0.75
+        min_roc_value_early_stopping = 0.89
     elif params.dataset == "CTU-13-Scenario-10":
         min_roc_value_early_stopping = 0.86
     elif params.dataset == "CTU-13-Scenario-13":
@@ -261,7 +266,7 @@ def pipeline_validation(
                             params.seed = seed
                             np.random.seed(seed)
 
-                            g_tmp = g.clone()
+                            g_tmp = g.clone().to(device)
 
                             hst_edge = VeryFastHalfSpaceTrees(
                                 n_trees=n_trees,
@@ -315,11 +320,19 @@ def pipeline_validation(
 
                                     hst_node_model.learn_one(features)
 
-                            edges_unique = g_tmp.edge_index.t()
+                            edges_unique = g_tmp.edge_index.t().cpu()
 
                             if params.phi == "mean":
                                 edge_emb = (
                                     emb[edges_unique[:, 0]] + emb[edges_unique[:, 1]]) / 2
+                            elif params.phi == "max":
+                                edge_embs_source = emb[edges_unique[:, 0]].reshape(emb[edges_unique[:, 0]].shape[0],
+                                                                                emb[edges_unique[:, 0]].shape[1], 1)
+                                edge_embs_dest = emb[edges_unique[:, 1]].reshape(emb[edges_unique[:, 1]].shape[0],
+                                                                              emb[edges_unique[:, 1]].shape[1], 1)
+
+                                edge_embs = torch.concat((edge_embs_source, edge_embs_dest), axis=2)
+                                edge_emb = torch.nn.MaxPool1d(2)(edge_embs)
                             else:
                                 edge_emb = (
                                     emb[edges_unique[:, 1]] - emb[edges_unique[:, 0]])
@@ -334,7 +347,7 @@ def pipeline_validation(
                                     features[i] = x[i]
                                 hst_edge_model['MinMaxScaler'].learn_one(features)
 
-                            if params.random_start:  # params.dataset == "IDS2018" or params.dataset == "CTU-13-Scenario-10" or params.dataset == "CTU-13-Scenario-13":
+                            if params.random_start:
                                 edges_indexes = np.random.choice(np.arange(edge_emb.shape[0]), (window_size + window_size //2))
                                 edge_emb_tmp = edge_emb[edges_indexes, :]
                             else:
@@ -350,13 +363,14 @@ def pipeline_validation(
 
                                 hst_edge_model.learn_one(features)
 
-                            _, _, _, _, scores_and_labels, timing = run_stream(params, times, val, g_tmp, model,
+                            _, _, _, _, scores_and_labels, timing, _ = run_stream(params, times, val, g_tmp, model,
                                                                                weight_scores, hst_edge_model,
                                                                                hst_node_model, device, window_already_seen)
 
                             timings.append(timing)
 
                             all_scores_and_labels.append(scores_and_labels)
+
                             scores_and_labels = np.array(scores_and_labels)
 
                             roc_auc_results = roc_auc_score(
@@ -393,9 +407,10 @@ def pipeline_validation(
                             tn = 0.0
                             fp = 0.0
                             fn = 0.0
-                            for y in x:
+                            for idx, y in enumerate(x):
                                 score = y[0]
                                 l = y[1]
+                                
                                 if (score > thresholds[i] and l == 1):
                                     tp += 1
                                 elif (score <= thresholds[i] and l == 0):
@@ -404,6 +419,7 @@ def pipeline_validation(
                                     fp += 1
                                 elif (score <= thresholds[i] and l == 1):
                                     fn += 1
+
                             precision = np.around(
                                 (tp) / (tp + fp), 15) if (tp + fp) > 0 else 0
                             recall_tp = np.around(

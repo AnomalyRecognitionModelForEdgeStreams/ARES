@@ -17,22 +17,23 @@
   "phi": "mean",
   "random_start": 1,
 
+  "batch_size": 1024,
   "in_channels": 32,
   "hidden_channels": 16,
   "out_channels": 4,
   "num_layers": 4,
   "epochs": 10000,
   "learning_rate": 0.001,
-  "patience": 1000,
+  "patience": 300,
 
   "plot_title": "plot_loss/plot_loss_GAE_IDS2018",
   "model_save_path": "checkpoints/model_GAE_IDS2018",
 
   "n_trees": 8,
   "height": 3,
-  "window_size": 8,
-  "thresholds": "0.6749999821186066, 0.6541666686534882, 0.6812500059604645, 0.71875, 0.8291666507720947, 0.6333333253860474, 0.7833333313465118, 0.7354166507720947, 0.7354166507720947",
+  "window_size": 1024,
+  "thresholds": "0.7032389342784882, 0.6850097477436066, 0.648681640625, 0.7398599982261658, 0.8234537541866302, 0.6902832090854645, 0.824755847454071, 0.7620768249034882, 0.7579427063465118",
   "weights": "1.0,0.0,0.0",
-  "window_already_seen": 64
+  "window_already_seen": 32
 
 }

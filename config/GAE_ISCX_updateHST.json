@@ -16,23 +16,23 @@
 
   "phi": "minus",
   "random_start": 0,
-
+  
   "in_channels": 32,
   "hidden_channels": 16,
   "out_channels": 4,
   "num_layers": 4,
   "epochs": 10000,
   "learning_rate": 0.001,
-  "patience": 1000,
+  "patience": 500,
 
   "plot_title": "plot_loss/plot_loss_GAE_ISCX",
-  "model_save_path": "checkpoints/model_GAE_ISCX",
+  "model_save_path": "checkpoints/model_GAE_ISCX_update",
 
   "n_trees": 8,
-  "height": 12,
-  "window_size": 8192,
-  "thresholds": "0.9986387491226196, 0.9994718432426453, 0.9993235468864441, 0.9994227588176727, 0.9994910955429077, 0.999545156955719, 0.9995635747909546, 0.999591052532196, 0.9992401897907257",
+  "height": 6,
+  "window_size": 512,
+  "thresholds": "0.9089009463787079, 0.9441110193729401, 0.9779370129108429, 0.9625445902347565, 0.9454547464847565, 0.9467062056064606, 0.9409045279026031, 0.9281246066093445, 0.946973443031311",
   "weights": "1.0,0.0,0.0",
-  "window_already_seen": 64
+  "window_already_seen": 8
 
 }

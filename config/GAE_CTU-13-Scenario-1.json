@@ -16,14 +16,14 @@
 
   "phi": "mean",
   "random_start": 0,
-
+  
   "in_channels": 32,
   "hidden_channels": 16,
   "out_channels": 8,
   "num_layers": 3,
-  "epochs": 10000,
+  "epochs": 1000,
   "learning_rate": 0.001,
-  "patience": 1000,
+  "patience": 500,
 
   "plot_title": "plot_loss/plot_loss_GAE_CTU-13-Scenario-1",
   "model_save_path": "checkpoints/model_GAE_CTU-13-Scenario-1",
@@ -31,7 +31,7 @@
   "n_trees": 8,
   "height": 6,
   "window_size": 64,
-  "thresholds": "0.8596825897693634, 0.7395115494728088, 0.8766301572322845, 0.8541461527347565, 0.840335875749588, 0.8651266992092133, 0.9013287425041199, 0.8554995059967041, 0.8757381737232208",
+  "thresholds": "0.8284018039703369, 0.8454724252223969, 0.9332554042339325, 0.9121862649917603, 0.8492556512355804, 0.8603284955024719, 0.9128322005271912, 0.8675566017627716, 0.8606360852718353",
   "weights": "1.0,0.0,0.0",
-  "window_already_seen": 64
+  "window_already_seen": 4
 }
