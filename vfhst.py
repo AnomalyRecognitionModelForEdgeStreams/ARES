@@ -220,6 +220,7 @@ class VeryFastHalfSpaceTrees(anomaly.base.AnomalyDetector):
         for t in self.trees:
             for node in t.walk(x):
                 node.l_mass += 1
+                node.r_mass += 1
 
         # Pivot the masses if necessary
         self.counter += 1
@@ -240,7 +241,7 @@ class VeryFastHalfSpaceTrees(anomaly.base.AnomalyDetector):
             for depth, node in enumerate(t.walk(x)):
                 score += node.r_mass * 2 ** depth
                 if node.r_mass < self.size_limit:
-                    break
+                   break
 
         # Normalize the score between 0 and 1
         score /= self._max_score
@@ -274,9 +275,14 @@ class VeryFastHalfSpaceTrees(anomaly.base.AnomalyDetector):
                         node.r_mass = 0
                         node.l_mass = 0
                     node.r_window = self.current_window
-                node.l_mass += 1
+
+                if self._first_window:
+                    node.r_mass += 1
+                else:
+                    node.l_mass += 1
 
                 score += node.r_mass * 2 ** depth
+
         self.counter += 1
         if self.counter == self.window_size:
             self.current_window += 1

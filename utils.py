@@ -31,6 +31,7 @@ def preprocess_dataset(params):
         path = "data/processed/DARPA/darpa_original.csv"
         df = pd.read_csv(path, header=None, names=["s", "d", "t", "l"])
 
+        df['name'] = df.l
         df.l = df.l != '-'
         df.l = df.l.astype('int')
 
@@ -42,20 +43,41 @@ def preprocess_dataset(params):
         df.t = df.t.astype('category')
         df.t = df.t.cat.codes + 1  # Time starts from 1
 
-        train_chunk = int(df.shape[0] * perc_train)
-        train_chunk_t = df.iloc[train_chunk].t
+        if "DARPA_CL" in params.model_save_path:
+            chunk = np.arange(df.shape[0])
 
-        train_chunk_tmp = int(df.shape[0] * 0.6)
+            np.random.seed(42)
 
-        val_chunk = int(df.shape[0] * perc_val) + train_chunk_tmp
-        val_chunk_t = df.iloc[val_chunk].t
+            train_chunk = int(df.shape[0] * perc_train)
+            train_chunk_t = np.random.choice(chunk, replace=False, size=train_chunk)  # df.iloc[train_chunk].t
+            chunk = np.delete(chunk, train_chunk_t)
 
-        train = df[df.t <= train_chunk_t]
-        val_and_train = df[df.t <= val_chunk_t]
-        val_and_train = val_and_train[val_and_train['l'] == 0]
-        val = df[(df.t > train_chunk_t) & (df.t <= val_chunk_t)]
-        test = df[df.t > val_chunk_t]
-        val_and_test = df[df.t > train_chunk_t]
+            val_chunk = int(df.shape[0] * perc_val)
+            val_chunk_t = chunk[:val_chunk]
+
+            test_chunk_t = chunk[val_chunk:]
+
+            train = df.iloc[train_chunk_t]
+            val = df.iloc[val_chunk_t]
+            test = df.iloc[test_chunk_t]
+
+            val_and_test = df.iloc[np.concatenate((val_chunk_t, test_chunk_t))]
+
+        else:
+            train_chunk = int(df.shape[0] * perc_train)
+            train_chunk_t = df.iloc[train_chunk].t
+
+            train_chunk_tmp = int(df.shape[0] * 0.6)
+
+            val_chunk = int(df.shape[0] * perc_val) + train_chunk_tmp
+            val_chunk_t = df.iloc[val_chunk].t
+
+            train = df[df.t <= train_chunk_t]
+            val_and_train = df[df.t <= val_chunk_t]
+            val_and_train = val_and_train[val_and_train['l'] == 0]
+            val = df[(df.t > train_chunk_t) & (df.t <= val_chunk_t)]
+            test = df[df.t > val_chunk_t]
+            val_and_test = df[df.t > train_chunk_t]
 
         val = val.reset_index()
         test = test.reset_index()
@@ -159,30 +181,65 @@ def load_data(params):
         "data/processed/{}/processed.csv".format(dataset),
         header=None,
         names=['s', 'd', 't'])
+
+    columns_gt = ['l']
+    if params.dataset == "UNSW-NB15":
+        columns_gt.append('name')
+
     df_gt = pd.read_csv(
         "data/processed/{}/ground_truth.csv".format(dataset),
         header=None,
-        names=['l'])
+        names=columns_gt)
 
     df['l'] = df_gt['l']
+    if params.dataset == "UNSW-NB15":
+        cyber_attacks_names = df_gt['name']
+        cyber_attacks_names[(cyber_attacks_names == ' Fuzzers') | (cyber_attacks_names == ' Fuzzers ')] = "Fuzzers"
+        cyber_attacks_names[(cyber_attacks_names == ' Shellcode ')] = "Shellcode"
+        cyber_attacks_names[(cyber_attacks_names == 'Backdoor')] = "Backdoors"
+        cyber_attacks_names[(cyber_attacks_names == ' Reconnaissance ')] = "Reconnaissance"
+        df['name'] = cyber_attacks_names
 
-    train_chunk = int(df.shape[0] * perc_train)
-    train_chunk_t = df.iloc[train_chunk].t
+    if "CL" in params.model_save_path:
+        chunk = np.arange(df.shape[0])
 
-    train_chunk_tmp = int(df.shape[0] * 0.6)
+        np.random.seed(42)
 
-    val_chunk = int(df.shape[0] * perc_val) + train_chunk_tmp
-    val_chunk_t = df.iloc[val_chunk].t
+        train_chunk = int(df.shape[0] * perc_train)
+        train_chunk_t = np.random.choice(chunk, replace=False, size=train_chunk)  # df.iloc[train_chunk].t
 
-    train = df[df.t <= train_chunk_t]
-    val_and_train = df[df.t <= val_chunk_t]
-    val_and_train = val_and_train[val_and_train['l'] == 0]
-    val = df[(df.t > train_chunk_t) & (df.t <= val_chunk_t)]
-    test = df[df.t > val_chunk_t]
-    val_and_test = df[df.t > train_chunk_t]
+        chunk = np.delete(chunk, train_chunk_t)
+
+        val_chunk = int(df.shape[0] * perc_val)
+        val_chunk_t = chunk[:val_chunk]
+
+        test_chunk_t = chunk[val_chunk:]
+
+        train = df.iloc[train_chunk_t]
+        val = df.iloc[val_chunk_t]
+        test = df.iloc[test_chunk_t]
+
+        val_and_test = df.iloc[np.concatenate((val_chunk_t, test_chunk_t))]
+
+    else:
+        train_chunk = int(df.shape[0] * perc_train)
+        train_chunk_t = df.iloc[train_chunk].t
+
+        train_chunk_tmp = int(df.shape[0] * 0.6)
+
+        val_chunk = int(df.shape[0] * perc_val) + train_chunk_tmp
+        val_chunk_t = df.iloc[val_chunk].t
+
+        train = df[df.t <= train_chunk_t]
+        val_and_train = df[df.t <= val_chunk_t]
+        val_and_train = val_and_train[val_and_train['l'] == 0]
+        val = df[(df.t > train_chunk_t) & (df.t <= val_chunk_t)]
+        test = df[df.t > val_chunk_t]
+        val_and_test = df[df.t > train_chunk_t]
 
     val = val.reset_index()
     test = test.reset_index()
+    #val_and_test = val_and_test.reset_index()
 
     max_node = max(df.s.max(), df.d.max()) + 1
 
@@ -208,7 +265,6 @@ def load_data(params):
         w_val[['s', 'd']].to_numpy()).t().contiguous(), edge_dict=w_val_dict).cpu()
 
     return train_graph, val_graph, train, val, test, val_and_test, df
-
 
 def save_unsw():
     columns = [
@@ -281,7 +337,7 @@ def save_unsw():
 
     df = pd.concat((df1, df2, df3, df4))
 
-    df = df[['srcip', 'sport', 'dstip', 'dsport', "Ltime", 'Label']]
+    df = df[['srcip', 'sport', 'dstip', 'dsport', "Ltime", 'Label', 'attack_cat']]
 
     # + np.full(df.shape[0], ":") + df['sport'].astype(str)
     df['s'] = df['srcip'].astype(str)
@@ -289,8 +345,9 @@ def save_unsw():
     df['d'] = df['dstip'].astype(str)
     df['t'] = df['Ltime']
     df['l'] = df['Label']
+    df['name'] = df['attack_cat']
 
-    df = df[['s', 'd', 't', 'l']]
+    df = df[['s', 'd', 't', 'l', 'name']]
 
     nodes = {}
     timings = {}

@@ -7,6 +7,8 @@ import torch
 from torch_geometric.nn.models import GraphSAGE, GAT
 from torch_geometric.nn import GAE
 import matplotlib.pyplot as plt
+from torch_geometric.loader import NeighborLoader
+import torch_geometric
 
 
 class Trainer(nn.Module):
@@ -18,6 +20,7 @@ class Trainer(nn.Module):
         self.hidden_channels = params.hidden_channels
         self.out_channels = params.out_channels
         self.num_layers = params.num_layers
+        # self.num_neighbors = params.num_neighbors
         self.epochs = params.epochs
         self.patience = params.patience
         self.model_name = params.model_name
@@ -48,40 +51,33 @@ class Trainer(nn.Module):
         self.model.train()
 
         total_loss = 0.0
-        batch = train_graph
 
+        batch = train_graph
         x = batch.x.to(self.device)
-        edge_index = batch.edge_index.to(self.device)
+        edge_index = batch.edge_index[:2, :].to(self.device)
 
         self.optimizer.zero_grad()
 
         z = self.model.encode(x=x, edge_index=edge_index)
-
         loss = self.model.recon_loss(z, edge_index)
 
         loss.backward()
         self.optimizer.step()
-        total_loss += loss.detach()
 
-        return float(total_loss)
+        return float(loss)
+
 
     @torch.no_grad()
     def validation(self, val_graph):
         self.model.eval()
 
-        total_loss = 0.0
         batch = val_graph
-
         x = batch.x.to(self.device)
         edge_index = batch.edge_index[:2, :].to(self.device)
-
         z = self.model.encode(x=x, edge_index=edge_index)
-
         loss = self.model.recon_loss(z, edge_index)
+        return float(loss)
 
-        total_loss += loss
-
-        return float(total_loss)
 
     def fit(self, train_graph, val_graph):
 

@@ -18,13 +18,11 @@ os.environ['CUDA_VISIBLE_DEVICES']= "{}".format(str(params.GPU))
 import torch
 
 from pipeline import pipeline_validation, pipeline_test
-from utils import preprocess_dataset, save_unsw, save_ctu, load_data
+from utils import preprocess_dataset, save_unsw, save_ctu, load_data, save_iot
 
 from trainer import Trainer
 import numpy as np
 import torch_geometric
-
-
 
 if params.save_files:
     if params.dataset == "UNSW-NB15":
@@ -40,9 +38,8 @@ else:
     train_graph, val_graph, train, val, test, val_and_test, df = load_data(
         params)
 
-
 GPU = params.GPU
-device_string = 'cuda:{}'.format("0") if torch.cuda.is_available() and GPU != "cpu" else 'cpu'
+device_string = 'cuda:{}'.format(GPU) if torch.cuda.is_available() and GPU != "cpu" else 'cpu'
 device = torch.device(device_string)
 
 params.device = device
@@ -149,7 +146,9 @@ else:
         output_file += ".txt"
 
         g = train_graph.clone()
-        times = np.concatenate((val.t.unique(), test.t.unique()))
+
+        val_times = val.t.unique()
+        test_times = test.t.unique()
 
         x = g.x.to(device)
         edge_index = g.edge_index.to(device)
@@ -167,7 +166,8 @@ else:
             params,
             limits,
             output_file,
-            times,
+            val_times,
+            test_times,
             val_and_test,
             g,
             model,
