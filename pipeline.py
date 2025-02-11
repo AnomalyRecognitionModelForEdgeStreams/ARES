@@ -168,20 +168,36 @@ def pipeline_test(
             hst_edge_model.learn_one(features)
 
         start_test_index = -1
-        if params.dataset == "DARPA":
-            start_test_index = 3645696
-        elif params.dataset == "UNSW-NB15":
-            start_test_index = 2032074
-        elif params.dataset == "ISCX":
-            start_test_index = 877662
-        elif params.dataset == "IDS2018":
-            start_test_index = 6359183
-        elif params.dataset == "CTU-13-Scenario-1":
-            start_test_index = 2259709
-        elif params.dataset == "CTU-13-Scenario-10":
-            start_test_index = 1047832
-        elif params.dataset == "CTU-13-Scenario-13":
-            start_test_index = 1540118
+        if "CL" in params.model_save_path:
+            if params.dataset == "DARPA":
+                start_test_index = 2275809
+            elif params.dataset == "UNSW-NB15":
+                start_test_index = 1270627
+            elif params.dataset == "ISCX":
+                start_test_index = 548095
+            elif params.dataset == "IDS2018":
+                start_test_index = 3976526
+            elif params.dataset == "CTU-13-Scenario-1":
+                start_test_index = 1412124
+            elif params.dataset == "CTU-13-Scenario-10":
+                start_test_index = 654811
+            elif params.dataset == "CTU-13-Scenario-13":
+                start_test_index = 963320
+        else:
+            if params.dataset == "DARPA":
+                start_test_index = 3645696
+            elif params.dataset == "UNSW-NB15":
+                start_test_index = 2032074
+            elif params.dataset == "ISCX":
+                start_test_index = 877662
+            elif params.dataset == "IDS2018":
+                start_test_index = 6359183
+            elif params.dataset == "CTU-13-Scenario-1":
+                start_test_index = 2259709
+            elif params.dataset == "CTU-13-Scenario-10":
+                start_test_index = 1047832
+            elif params.dataset == "CTU-13-Scenario-13":
+                start_test_index = 1540118
 
         tp, tn, fp, fn, scores_and_labels, timing, roc_auc_over_time, counts_for_each_attack = run_stream(params, times, val_and_test, g_tmp, model,
                                                                       weights, hst_edge_model, hst_node_model, device,
