@@ -220,7 +220,7 @@ class VeryFastHalfSpaceTrees(anomaly.base.AnomalyDetector):
         for t in self.trees:
             for node in t.walk(x):
                 node.l_mass += 1
-                node.r_mass += 1
+                #node.r_mass += 1
 
         # Pivot the masses if necessary
         self.counter += 1
