@@ -51,3 +51,14 @@ In particular, in configuration.json you need to fill the following specificatio
 ### Note:
 1) Configuration files for the dataset used are in the "config" folder.
 2) data/processed/IDS2018 and data/processed/DARPA need to be uncompressed due to the size dimension limit on github.
+
+## Cite us
+If you use ARES in your research, please cite our KDD 2026 paper:
+
+```bibtex
+@article{mungari2025ares,
+  title={ARES: Anomaly Recognition Model For Edge Streams},
+  author={Mungari, Simone and Bifet, Albert and Manco, Giuseppe and Pfahringer, Bernhard},
+  journal={arXiv preprint arXiv:2511.22078},
+  year={2025}
+}
